@@ -1,0 +1,6 @@
+[package]
+name = "classifier"
+version = "0.1.0"
+authors = ["Michael Bausano <michael@joinpouch.com>"]
+
+[dependencies]
