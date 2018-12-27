@@ -1,5 +1,4 @@
 mod layer;
-mod neuron;
 
 use self::layer::Layer;
 
@@ -8,10 +7,10 @@ pub struct Network {
 }
 
 impl Network {
-  pub fn from(schema: Vec<Vec<Vec<f64>>>) -> Network {
+  pub fn from(schema: Vec<Vec<(f64, Vec<f64>)>>) -> Network {
     Network {
       layers: schema.into_iter()
-        .map(|neurons| Layer::from(neurons))
+        .map(|neurons| Layer { neurons })
         .collect()
     }
   }

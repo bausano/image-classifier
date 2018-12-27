@@ -8,18 +8,26 @@ fn main() {
   //let digits: Vec<Digit> = reader::read_digits();
 
   //println!("Analyzing {} digits.", digits.len());
+}
 
-  let network: Network = Network::from(vec!(
-    vec!(
-      vec!(0.1_f64, 0.1_f64, -0.1_f64), vec!(0.9_f64, 0.9_f64, 0_f64)
-    ),
-    vec!(
-      vec!(-10_f64, 1_f64, -0.01_f64), vec!(100_f64, -1_f64, 0.01_f64)
-    )
-  ));
+#[cfg(test)]
+mod tests {
+  use super::neural_network::Network;
 
-  assert!(network.classify(vec!(0_f64, 1_f64)) == 0);
-  assert!(network.classify(vec!(1_f64, 0_f64)) == 0);
-  assert!(network.classify(vec!(0_f64, 0_f64)) == 1);
-  assert!(network.classify(vec!(1_f64, 1_f64)) == 1);
+  #[test]
+  fn xor_gate() {
+    let network: Network = Network::from(vec!(
+      vec!(
+        (-0.1_f64, vec!(0.1_f64, 0.1_f64)), (0_f64, vec!(0.9_f64, 0.9_f64))
+      ),
+      vec!(
+        (-0.01_f64, vec!(-10_f64, 1_f64)), (0.01_f64, vec!(100_f64, -1_f64))
+      )
+    ));
+
+    assert!(network.classify(vec!(0_f64, 1_f64)) == 0);
+    assert!(network.classify(vec!(1_f64, 0_f64)) == 0);
+    assert!(network.classify(vec!(0_f64, 0_f64)) == 1);
+    assert!(network.classify(vec!(1_f64, 1_f64)) == 1);
+  }
 }
