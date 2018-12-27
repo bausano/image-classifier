@@ -12,11 +12,11 @@ pub fn read_digits() -> Vec<Digit> {
       continue;
     }
 
-    let mut grid: Vec<u8> = Vec::new();
+    let mut grid: Vec<f64> = Vec::new();
 
     for number in line.split(",") {
       grid.push(
-        number.parse::<u8>().unwrap()
+        number.parse::<f64>().unwrap()
       );
     }
 

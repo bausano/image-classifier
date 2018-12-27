@@ -1,9 +1,17 @@
 
 pub struct Layer {
-  pub neurons: Vec<(f64, Vec<f64>)>
+  pub neurons: Vec<(f64, Vec<f64>)>,
+  pub outputs: Vec<f64>
 }
 
 impl Layer {
+  pub fn from(neurons: Vec<(f64, Vec<f64>)>) -> Layer {
+    Layer {
+      neurons,
+      outputs: Vec::new()
+    }
+  }
+
   pub fn process(&self, inputs: Vec<f64>) -> Vec<f64> {
     self.neurons.iter()
       .map(|neuron| {

@@ -1,13 +1,18 @@
-//mod reader;
+extern crate rand;
+
+mod reader;
 mod neural_network;
 
-//use reader::digit::Digit;
+use reader::digit::Digit;
 use neural_network::Network;
 
 fn main() {
-  //let digits: Vec<Digit> = reader::read_digits();
+  let mut digits: Vec<Digit> = reader::read_digits();
+  let digit = digits.pop().unwrap();
 
-  //println!("Analyzing {} digits.", digits.len());
+  let network = Network::new(vec!(64, 12, 12, 10));
+
+  println!("Network classify {}", network.classify(digit.grid.clone()));
 }
 
 #[cfg(test)]

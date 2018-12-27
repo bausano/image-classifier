@@ -1,25 +1,48 @@
 mod layer;
 
 use self::layer::Layer;
+use rand::prelude::*;
 
 pub struct Network {
-  layers: Vec<Layer>
+  pub layers: Vec<Layer>
 }
 
 impl Network {
+  pub fn new(layer_schema: Vec<u8>) -> Network {
+    let mut rng = rand::thread_rng();
+    let mut layers: Vec<Vec<(f64, Vec<f64>)>> = Vec::new();
+
+    for i in 1..layer_schema.len() {
+      let mut layer: Vec<(f64, Vec<f64>)> = Vec::new();
+
+      for _ in 0..layer_schema[i] {
+        layer.push((
+          rng.gen::<f64>(),
+          (0..(layer_schema[i] - 1))
+            .map(|_| rng.gen::<f64>())
+            .collect()
+        ));
+      }
+
+      layers.push(layer);
+    }
+
+    Network::from(layers)
+  }
+
   pub fn from(schema: Vec<Vec<(f64, Vec<f64>)>>) -> Network {
     Network {
       layers: schema.into_iter()
-        .map(|neurons| Layer { neurons })
+        .map(|neurons| Layer::from(neurons))
         .collect()
     }
   }
 
+  /**
   pub fn train(&self, data: Vec<f64>, expected: u8) {
-    let classes: Vec<f64> = self.compute(data);
-
     //
   }
+   */
 
   pub fn classify(&self, inputs: Vec<f64>) -> u8 {
     let mut i: u8 = 0;
