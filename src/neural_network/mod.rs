@@ -69,6 +69,10 @@ impl Network {
   pub fn train(&mut self, training_matrix: Vec<(u8, Vec<f64>)>) -> f64 {
     let mut activation_matrix = self.calculate_activation_matrix(&training_matrix);
 
+    for i in 0..training_matrix.len() {
+      let target = training_matrix[i].0;
+    }
+
     0_f64
   }
 
@@ -78,27 +82,16 @@ impl Network {
 
     // For each digit in the training data
     for (_class, inputs) in matrix.iter() {
-      // Holds activation output from previous layer.
-      let mut prev: Vec<f64> = Vec::new();
+      data.push(self.layers.iter().fold(vec!(inputs.clone()),
+        |mut activations, layer| {
+          // We can safely unwrap as there is always going to be
+          // at least one element in the vector.
+          let output = layer.process(&activations.last().unwrap());
 
-      // Stores layer outputs.
-      let mut layer_output = Vec::new();
+          activations.push(output);
 
-      // Each layer of the network.
-      for k in 0..self.layers.len() {
-        // If it's an input layer
-        // then feed it with inputs,
-        // else feed it with output from previous layer.
-        prev = if k == 0 {
-          self.layers[k].process(inputs)
-        } else {
-          self.layers[k].process(&prev)
-        };
-
-        layer_output.push(prev.clone());
-      }
-
-      data.push(layer_output);
+          activations
+      }));
     }
 
     data
