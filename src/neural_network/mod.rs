@@ -38,12 +38,6 @@ impl Network {
     }
   }
 
-  /**
-  pub fn train(&self, data: Vec<f64>, expected: u8) {
-    //
-  }
-   */
-
   pub fn classify(&self, inputs: Vec<f64>) -> u8 {
     let mut i: u8 = 0;
     let mut res: Option<u8> = Some(i);
@@ -68,6 +62,45 @@ impl Network {
 
   fn compute(&self, inputs: Vec<f64>) -> Vec<f64> {
     self.layers.iter()
-      .fold(inputs, |signal, layer| layer.process(signal))
+      .fold(inputs, |signal, layer| layer.process(&signal))
+  }
+
+  #[allow(dead_code)]
+  pub fn train(&mut self, training_matrix: Vec<(u8, Vec<f64>)>) -> f64 {
+    let mut activation_matrix = self.calculate_activation_matrix(&training_matrix);
+
+    0_f64
+  }
+
+  fn calculate_activation_matrix(&self, matrix: &Vec<(u8, Vec<f64>)>)
+    -> Vec<Vec<Vec<f64>>> {
+    let mut data: Vec<Vec<Vec<f64>>> = Vec::new();
+
+    // For each digit in the training data
+    for (_class, inputs) in matrix.iter() {
+      // Holds activation output from previous layer.
+      let mut prev: Vec<f64> = Vec::new();
+
+      // Stores layer outputs.
+      let mut layer_output = Vec::new();
+
+      // Each layer of the network.
+      for k in 0..self.layers.len() {
+        // If it's an input layer
+        // then feed it with inputs,
+        // else feed it with output from previous layer.
+        prev = if k == 0 {
+          self.layers[k].process(inputs)
+        } else {
+          self.layers[k].process(&prev)
+        };
+
+        layer_output.push(prev.clone());
+      }
+
+      data.push(layer_output);
+    }
+
+    data
   }
 }
