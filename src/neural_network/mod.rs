@@ -78,22 +78,16 @@ impl Network {
 
   fn calculate_activation_matrix(&self, matrix: &Vec<(u8, Vec<f64>)>)
     -> Vec<Vec<Vec<f64>>> {
-    let mut data: Vec<Vec<Vec<f64>>> = Vec::new();
-
-    // For each digit in the training data
-    for (_class, inputs) in matrix.iter() {
-      data.push(self.layers.iter().fold(vec!(inputs.clone()),
+    matrix.iter()
+      .map(|(_class, inputs)| self.layers.iter().fold(
+        vec!(inputs.clone()),
         |mut activations, layer| {
-          // We can safely unwrap as there is always going to be
-          // at least one element in the vector.
           let output = layer.process(&activations.last().unwrap());
 
           activations.push(output);
 
           activations
-      }));
-    }
-
-    data
+      }))
+      .collect()
   }
 }
