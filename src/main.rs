@@ -7,12 +7,14 @@ use reader::digit::Digit;
 use neural_network::Network;
 
 fn main() {
-  let mut digits: Vec<Digit> = reader::read_digits();
-  let digit = digits.pop().unwrap();
+  let digits: Vec<Digit> = reader::read_digits();
+  let training_set: Vec<(u8, Vec<f64>)> = digits.iter()
+    .map(|digit| (digit.class, digit.grid.clone()))
+    .collect();
 
-  let network = Network::new(vec!(64, 12, 12, 10));
+  let mut network = Network::new(vec!(64, 12, 12, 10));
 
-  println!("Network classify {}", network.classify(digit.grid.clone()));
+  println!("Network classify {}", network.train(training_set));
 }
 
 #[cfg(test)]

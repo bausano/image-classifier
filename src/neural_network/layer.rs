@@ -15,7 +15,7 @@ impl Layer {
 
         product(&weights, inputs) + bias
       })
-      .map(|threshold| 0_f64.max(threshold))
+      .map(leaky_ReLU)
       .collect()
   }
 }
@@ -28,4 +28,12 @@ fn product(weights: &Vec<f64>, inputs: &Vec<f64>) -> f64 {
   }
 
   product
+}
+
+fn ReLU(x: f64) -> f64 {
+  0_f64.max(x)
+}
+
+fn leaky_ReLU(x: f64) -> f64 {
+  (0.01_f64 * x).max(x)
 }
