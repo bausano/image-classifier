@@ -66,52 +66,50 @@ impl Network {
       .fold(inputs, |signal, layer| layer.process(&signal))
   }
 
-  #[allow(dead_code)]
   pub fn train(&mut self, training_matrix: Vec<(u8, Vec<f64>)>) -> f64 {
     let activation_matrix = self.calculate_activation_matrix(&training_matrix);
 
-    for digit in activation_matrix.iter() {
-      println!("-------");
+    let error_matrix = self.calculate_error_matrix(&activation_matrix);
 
-      for col in digit.iter() {
-        for cell in col.iter() {
-          print!("{:.2}, ", cell);
-        }
+    let data = training_matrix.iter()
+      .map(|(target, m)| {
+        let target = usize::from(target.clone());
 
-        println!("\n");
-      }
-    }
+        self.compute(m.clone()).iter().enumerate()
+          .map(|(i, val)| val - (if i == target { 1_f64 } else { 0_f64 }))
+          .collect()
+      })
+      .collect::<Vec<Vec<f64>>>()
+      .iter()
+      .map(|errors| self.layers.iter().rev()
+        .fold(vec!(errors.clone()), |mut carry, layer| {
+          let new_errors: Vec<f64> = {
+            let previous_errors: &Vec<f64> = carry.last().unwrap();
 
-    //let mut cost = 0_f64;
+            layer.neurons.iter()
+              .map(|(bias, weights)| {
+                let product = weights.iter().zip(previous_errors.iter())
+                  .fold(0_f64, |sum, (weight, error)| sum + weight * error);
 
-    let iterator = activation_matrix.iter().zip(training_matrix.iter());
+                product + previous_errors.iter().fold(0_f64, |sum, e| sum + e * bias)
+              })
+              .collect::<Vec<f64>>()
+          };
 
-    iterator.fold(0_f64, |carry, (xd, (target, _i))| {
-      let outputs = xd.last().unwrap();
-      let target = usize::from(target.clone());
+          carry.push(new_errors);
 
-      carry + outputs.iter().enumerate()
-        .fold(0_f64, |sum, (i, o)| {
-          let res = if i == target { 1_f64 } else { 0_f64 };
-
-          sum + (o - res).powi(2)
+          carry
         })
-    })
+      )
+      .collect::<Vec<Vec<Vec<f64>>>>();
 
-    /*for i in 0..training_matrix.len() {
-      let target = training_matrix[i].0;
-
-      let outputs = activation_matrix[i].last().unwrap();
-
-      cost += outputs.iter().enumerate()
-        .fold(0_f64, |sum, (i, o)| {
-          let res = if i == usize::from(target) { 1_f64 } else { 0_f64 };
-
-          sum + (o - res).powi(2)
-        });
+    for layer in data.first().unwrap().iter() {
+      println!("\n {}", layer.len());
     }
 
-    cost*/
+    // for each layer compute an error from previous
+
+    0_f64
   }
 
   fn calculate_activation_matrix(&self, matrix: &Vec<(u8, Vec<f64>)>)
@@ -127,5 +125,34 @@ impl Network {
           activations
       }))
       .collect()
+  }
+
+  fn calculate_error_matrix(&self, matrix: &Vec<Vec<Vec<f64>>>)
+    -> Vec<Vec<Vec<f64>>> {
+    matrix.iter()
+      .map(|digit| digit.last().unwrap().clone())
+      .collect::<Vec<Vec<f64>>>()
+      .iter()
+      .map(|errors| self.layers.iter().rev()
+        .fold(vec!(errors.clone()), |mut carry, layer| {
+          let new_errors: Vec<f64> = {
+            let previous_errors: &Vec<f64> = carry.last().unwrap();
+
+            layer.neurons.iter()
+              .map(|(bias, weights)| {
+                let product = weights.iter().zip(previous_errors.iter())
+                  .fold(0_f64, |sum, (weight, error)| sum + weight * error);
+
+                product + previous_errors.iter().fold(0_f64, |sum, e| sum + e * bias)
+              })
+              .collect::<Vec<f64>>()
+          };
+
+          carry.push(new_errors);
+
+          carry
+        })
+      )
+      .collect::<Vec<Vec<Vec<f64>>>>()
   }
 }
