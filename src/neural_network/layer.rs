@@ -15,7 +15,7 @@ impl Layer {
 
         product(&weights, inputs) + bias
       })
-      .map(leaky_ReLU)
+      .map(sigmoid)
       .collect()
   }
 }
@@ -30,10 +30,16 @@ fn product(weights: &Vec<f64>, inputs: &Vec<f64>) -> f64 {
   product
 }
 
+#[allow(dead_code)]
 fn ReLU(x: f64) -> f64 {
   0_f64.max(x)
 }
 
+#[allow(dead_code)]
 fn leaky_ReLU(x: f64) -> f64 {
   (0.01_f64 * x).max(x)
+}
+
+fn sigmoid(x: f64) -> f64 {
+  1_f64 / (1_f64 + std::f64::consts::E.powf(-x))
 }

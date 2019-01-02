@@ -14,7 +14,7 @@ fn main() {
 
   let mut network = Network::new(vec!(64, 12, 12, 10));
 
-  println!("Network classify {}", network.train(training_set));
+  network.train(training_set);
 }
 
 #[cfg(test)]
@@ -36,5 +36,31 @@ mod tests {
     assert!(network.classify(vec!(1_f64, 0_f64)) == 0);
     assert!(network.classify(vec!(0_f64, 0_f64)) == 1);
     assert!(network.classify(vec!(1_f64, 1_f64)) == 1);
+  }
+
+  #[test]
+  fn train_xor_gate() {
+    let mut network: Network = Network::new(vec!(2, 2, 2));
+
+    network.train(vec!(
+      (0, vec!(1_f64, 1_f64)),
+      (0, vec!(0_f64, 0_f64)),
+      (1, vec!(1_f64, 0_f64)),
+      (1, vec!(0_f64, 1_f64))
+    ));
+
+    println!("\nWeights");
+    for layer in network.layers.iter() {
+      for (bias, weights) in layer.neurons.iter() {
+        println!("{:.2?} + {}", weights, bias);
+      }
+
+      println!("\n");
+    }
+
+    /*assert!(network.classify(vec!(0_f64, 1_f64)) == 0);
+    assert!(network.classify(vec!(1_f64, 0_f64)) == 0);
+    assert!(network.classify(vec!(0_f64, 0_f64)) == 1);
+    assert!(network.classify(vec!(1_f64, 1_f64)) == 1);*/
   }
 }
