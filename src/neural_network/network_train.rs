@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use super::layer::Layer;
 use super::network::Network;
 
 impl Network {
@@ -12,11 +13,23 @@ impl Network {
     for digit in training_data {
       let (target, inputs) = digit;
 
-      // Gets the activations for each layer.
-      let activations = self.calculate_activations(inputs);
+      // Converts target into usize so that it can be compared with enumerate.
+      let target = usize::from(target);
 
-      // Calculates the errors of each output neuron.
-      let cost = self.calculate_cost(target, activations.last().unwrap());
+      // Gets the activations for each layer.
+      let activations: Vec<Vec<f64>> = self.calculate_activations(inputs);
+
+      let layers_count: usize = self.layers.len() - 1;
+
+      for layer in layers_count..1 {
+        if (layer == layers_count) {
+          self.output_layer_weights(
+            layer,
+            target,
+            activations,
+          );
+        }
+      }
     }
 
   }
@@ -46,29 +59,42 @@ impl Network {
     })
   }
 
-  // Calculates the cost (error) of the classification.
+  fn output_layer_weights (
+    &self,
+    layer: usize,
+    target: usize,
+    activations: &Vec<Vec<f64>>,
+  ) -> Vec<f64> {
+    // Errors of each output neuron.
+    let deltas: Vec<f64> = self.calculate_deltas(
+      target,
+      activations.last().unwrap()
+    );
+
+    deltas
+  }
+
+  // Calculates the the partial weight change for each output neuron. This
+  // result is to be mapped over the outputs in previous hidden layer.
   //
   // @param target The expected outcome
   // @param outputs Outputs from the network
-  // @return Vector of errors for each output neuron
-  fn calculate_cost (&self, target: u8, outputs: &Vec<f64>) -> Vec<f64> {
-    // Converts target into usize so that it can be compared with enumerate.
-    let target = usize::from(target);
+  // @return Vector of partial delta for each output neuron
+  fn calculate_deltas (&self, target: usize, outputs: &Vec<f64>) -> Vec<f64> {
+    let derivative = self.activation.derivative.deref();
 
     outputs.iter()
       .enumerate()
       .map(|(neuron, output)| {
         // If this was the expected answer, compute error to 1, otherwise to 0.
-        if target == neuron {
+        let total_to_output = if target == neuron {
           1_f64 - output
         } else {
           0_f64 - output
-        }
+        };
+
+        self.learning_rate * derivative(output.clone()) * total_to_output
       })
-      // Make the error more forgiving. This is better so that the network
-      // doesn't make too big steps.
-      .map(|activation| activation.powi(2))
       .collect()
   }
-
 }

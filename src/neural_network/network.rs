@@ -13,6 +13,9 @@ pub struct Network {
   // Activation function and its derivative.
   pub activation: Activation,
 
+  // Learning rate of the network.
+  pub learning_rate: f64,
+
 }
 
 impl Network {
@@ -27,6 +30,7 @@ impl Network {
     layers: Vec<Vec<(f64, Vec<f64>)>>,
   ) -> Self {
     Network {
+      learning_rate: 0.2_f64,
       activation,
       layers: layers.into_iter()
         .map(|neurons| Layer::from(neurons))

@@ -17,12 +17,8 @@ impl Activation {
   // @return New Activation instance
   pub fn sigmoid () -> Self {
     Activation {
-      function: Box::new(|x: f64| 1_f64 / (1_f64 + E.powf(-x))),
-      derivative: Box::new(|x| {
-        let f = |x: f64| 1_f64 / (1_f64 + E.powf(-x));
-
-        f(x) * (1_f64 - f(x))
-      })
+      function: Box::new(|x| 1_f64 / (1_f64 + E.powf(-x))),
+      derivative: Box::new(|x| x * (1_f64 - x))
     }
   }
 
@@ -37,7 +33,7 @@ impl Activation {
           return 1_f64
         }
 
-        0.01_f64
+        0_f64
       })
     }
   }
