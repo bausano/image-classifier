@@ -77,7 +77,7 @@ impl Network {
 
         outputs.iter().enumerate()
           .map(|(k, o)| o - (if target == k { 1_f64 } else { 0_f64 }))
-          .map(|x| x.powi(2) * 0.5_f64)
+          .map(|x| x.powi(2))
           .collect()
       })
       .collect();
@@ -91,9 +91,9 @@ impl Network {
 
     println!("Cost of training examples is {}.", errors.iter().fold(0_f64, |sum, x| sum + x.iter().fold(0_f64, |y, f| y + f)));
 
-    let error_matrix = self.calculate_error_matrix(&errors);
+    // let error_matrix = self.calculate_error_matrix(&errors);
 
-    for (activation_layer, error_layer) in activation_matrix.iter().zip(error_matrix.iter()) {
+    for (activation_layer, error_layer) in activation_matrix.iter().zip(errors.iter()) {
       println!("--- Layer --- \n");
 
       println!("Activation Matrix");
@@ -105,11 +105,8 @@ impl Network {
       }
 
       println!("\nError Matrix");
-      for layer in error_layer.iter() {
-        for cell in layer.iter() {
-          print!("{:.2} ", cell);
-        }
-        println!("");
+      for cell in error_layer.iter() {
+        print!("{:.2} ", cell);
       }
     }
 

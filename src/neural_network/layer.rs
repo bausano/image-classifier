@@ -15,7 +15,7 @@ impl Layer {
 
         product(&weights, inputs) + bias
       })
-      .map(sigmoid)
+      .map(leaky_ReLU)
       .collect()
   }
 }
