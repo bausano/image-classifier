@@ -39,7 +39,7 @@ impl Network {
   // @param inputs Vector of same length as input layer
   // @return Activation intensity of each neuron in output layer
   fn compute(&self, inputs: Vec<f64>) -> Vec<f64> {
-    // We deference the pointer to the activation function
+    // We deference the pointer to the activation function.
     let activation_fn = self.activation.function.deref();
 
     // The prettiest line in the entire algorithm. We start with given inputs
