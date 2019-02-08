@@ -21,8 +21,9 @@ impl Network {
 
       let layers_count: usize = self.layers.len() - 1;
 
+      // WIP
       for layer in layers_count..1 {
-        if (layer == layers_count) {
+        if layer == layers_count {
           self.output_layer_weights(
             layer,
             target,
