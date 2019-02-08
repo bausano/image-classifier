@@ -26,7 +26,7 @@ impl Network {
           self.output_layer_weights(
             layer,
             target,
-            activations,
+            &activations,
           );
         }
       }
