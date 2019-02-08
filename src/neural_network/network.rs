@@ -22,7 +22,7 @@ impl Network {
   //
   // @param activation Activation function and its derivative
   // @param layers Raw layers vector
-  pub fn from(
+  pub fn from (
     activation: Activation,
     layers: Vec<Vec<(f64, Vec<f64>)>>,
   ) -> Self {
@@ -41,7 +41,7 @@ impl Network {
   // @param activation Pointer to the activation function and its derivative
   // @param schema Vector representing layers and their neurons
   // @return New Network instance
-  pub fn new(activation: Activation, schema: Vec<u8>) -> Self {
+  pub fn new (activation: Activation, schema: Vec<u8>) -> Self {
     // Random number generator.
     let mut rng = rand::thread_rng();
 

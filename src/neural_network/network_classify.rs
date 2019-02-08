@@ -7,7 +7,7 @@ impl Network {
   //
   // @param inputs Vector of same length as input layer
   // @return Position of output neuron that fired the most
-  pub fn classify(&self, inputs: Vec<f64>) -> u8 {
+  pub fn classify (&self, inputs: Vec<f64>) -> u8 {
     // Serves as an iterator.
     let mut current_neuron: u8 = 0;
     // The neuron that fired the most.
@@ -38,7 +38,7 @@ impl Network {
   //
   // @param inputs Vector of same length as input layer
   // @return Activation intensity of each neuron in output layer
-  fn compute(&self, inputs: Vec<f64>) -> Vec<f64> {
+  fn compute (&self, inputs: Vec<f64>) -> Vec<f64> {
     // We deference the pointer to the activation function.
     let activation_fn = self.activation.function.deref();
 

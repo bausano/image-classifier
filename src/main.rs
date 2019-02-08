@@ -8,21 +8,30 @@ use neural_network::network::Network;
 use neural_network::activation::Activation;
 
 fn main() {
+  // We read the digits from input file.
   let digits: Vec<Digit> = reader::read_digits();
-  let training_set: Vec<(u8, Vec<f64>)> = digits.iter()
+
+  // Destruct the digits into the training data.
+  let training_data: Vec<(u8, Vec<f64>)> = digits.iter()
     .map(|digit| (digit.class, digit.grid.clone()))
     .collect();
 
+  // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
     Activation::leaky_relu(),
     vec!(64, 12, 12, 10),
   );
 
-  network.train(training_set);
+  // Training the network.
+  network.train(training_data);
+
+  // TODO: Extract one input from the file and try to classify it.
 }
 
 #[cfg(test)]
 mod tests {
+  // TODO: Cross validation.
+
   use super::neural_network::network::Network;
   use super::neural_network::activation::Activation;
 
