@@ -8,36 +8,6 @@ pub struct Network {
 }
 
 impl Network {
-  pub fn new(layer_schema: Vec<u8>) -> Network {
-    let mut rng = rand::thread_rng();
-
-    let mut layers: Vec<Vec<(f64, Vec<f64>)>> = Vec::new();
-
-    for i in 1..layer_schema.len() {
-      let mut layer: Vec<(f64, Vec<f64>)> = Vec::new();
-
-      for _ in 0..layer_schema[i] {
-        layer.push((
-          0_f64,
-          (0..layer_schema[i - 1])
-            .map(|_| rng.gen::<f64>() * 2_f64 - 1_f64)
-            .collect()
-        ));
-      }
-
-      layers.push(layer);
-    }
-
-    Network::from(layers)
-  }
-
-  pub fn from(schema: Vec<Vec<(f64, Vec<f64>)>>) -> Network {
-    Network {
-      layers: schema.into_iter()
-        .map(|neurons| Layer::from(neurons))
-        .collect()
-    }
-  }
 
   pub fn classify(&self, inputs: Vec<f64>) -> u8 {
     let mut i: u8 = 0;
