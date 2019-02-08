@@ -11,7 +11,7 @@ pub struct Layer {
   // neurons: Vector<(Neuron) bias, weights>
   //
   // At the end of the training process, we change the floats.
-  pub neurons: Vec<(f64, Vec<f64>)>
+  pub neurons: Vec<(f64, Vec<f64>)>,
 
 }
 
