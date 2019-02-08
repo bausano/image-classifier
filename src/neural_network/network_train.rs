@@ -59,19 +59,42 @@ impl Network {
     })
   }
 
+  // Calculates output layer weights. This process is slightly different for
+  // this layer, therefore it has its own logic separated from the hidden layers.
+  //
+  // @param layer_index Index of the output layer is layers.length - 1
+  // @param target The expected result for given inputs
+  // @param activations Activation values of each layer
+  // @return Vector of changes to each neurons bias and weights
   fn output_layer_weights (
     &self,
-    layer: usize,
+    layer_index: usize,
     target: usize,
     activations: &Vec<Vec<f64>>,
-  ) -> Vec<f64> {
-    // Errors of each output neuron.
-    let deltas: Vec<f64> = self.calculate_deltas(
+  ) -> Vec<(f64, Vec<f64>)> {
+    // Partial weight change without the
+    let partial_deltas: Vec<f64> = self.calculate_deltas(
       target,
-      activations.last().unwrap()
+      &activations[layer_index]
     );
 
-    deltas
+    // Finishes deltas for each neuron in the output layer.
+    partial_deltas.iter().enumerate()
+      .map(|(neuron, partial_delta)| {
+        // Get the neuron this delta is computed for and extract the bias.
+        let (bias, _) = self.layers[layer_index].neurons[neuron];
+
+        // The partial delta onto the activations from the previous layer to
+        // find the final delta to the weight.
+        let weight_deltas = activations[layer_index - 1].iter()
+          .map(|activation| activation * partial_delta)
+          .collect();
+
+        // Export changes to the neuron in the same format as each neuron is
+        // defined: (bias, weights).
+        (bias * partial_delta, weight_deltas)
+      })
+      .collect()
   }
 
   // Calculates the the partial weight change for each output neuron. This
