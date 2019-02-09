@@ -25,13 +25,13 @@ impl Network {
         &activations[layers_count]
       );
 
-      let mut layers_iterator: Vec<usize> = (1..layers_count).collect();
+      let mut layers_iterator: Vec<usize> = (0..layers_count).collect();
       layers_iterator.reverse();
 
       // Propagates the error deltas from one layer to another.
       layers_iterator.iter().fold(
         output_partial_deltas,
-        |deltas, layer| self.update_weights(layer.clone(), deltas, &activations)
+        |deltas, layer| self.update_layer_weights(layer.clone(), deltas, &activations)
       );
     }
 
@@ -73,7 +73,7 @@ impl Network {
   /// @param target The expected result for given inputs
   /// @param activations Activation values of each layer
   /// @return Vector of changes to each neurons bias and weights
-  fn update_weights (
+  fn update_layer_weights (
     &mut self,
     layer_index: usize,
     partial_deltas: Vec<f64>,
@@ -87,7 +87,7 @@ impl Network {
 
         // The partial delta onto the activations from the previous layer to
         // find the final delta to the weight.
-        let weight_deltas = activations[layer_index - 1].iter()
+        let weight_deltas = activations[layer_index].iter()
           .map(|activation| activation * partial_delta * self.learning_rate)
           .collect();
 

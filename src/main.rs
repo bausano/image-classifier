@@ -43,12 +43,14 @@ fn main() {
     println!("\n");
   }
 
-  network.train(vec!(
-    (0, vec!(1_f64, 1_f64)),
-    (0, vec!(0_f64, 0_f64)),
-    (1, vec!(1_f64, 0_f64)),
-    (1, vec!(0_f64, 1_f64))
-  ));
+  for _ in 0..1000 {
+    network.train(vec!(
+      (0, vec!(1_f64, 1_f64)),
+      (0, vec!(0_f64, 0_f64)),
+      (1, vec!(1_f64, 0_f64)),
+      (1, vec!(0_f64, 1_f64)),
+    ));
+  }
 
   println!("\nWeights");
   for layer in network.layers.iter() {
