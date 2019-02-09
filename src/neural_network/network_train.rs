@@ -91,7 +91,7 @@ impl Network {
 
         // Export changes to the neuron in the same format as each neuron is
         // defined: (bias, weights).
-        (bias * partial_delta, weight_deltas)
+        (bias * partial_delta * self.learning_rate, weight_deltas)
       })
       .collect();
 
@@ -106,6 +106,11 @@ impl Network {
     deltas: Vec<f64>,
     activations: &Vec<Vec<f64>>,
   ) -> Vec<f64> {
+
+    // for each neuron
+      // error_contribution = sum (weight[i] * deltas[i])
+      // partial_delta = error_contribution * der(activation)
+
     return vec!(0_f64);
   }
 
