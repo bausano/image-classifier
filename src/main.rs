@@ -1,13 +1,13 @@
 extern crate rand;
 
-mod reader;
+pub mod reader;
 pub mod neural_network;
 
 use reader::digit::Digit;
 use neural_network::network::Network;
 use neural_network::activation::Activation;
 
-fn main() {
+fn _main() {
   // We read the digits from input file.
   let digits: Vec<Digit> = reader::read_digits();
 
@@ -26,6 +26,38 @@ fn main() {
   network.train(training_data);
 
   // TODO: Extract one input from the file and try to classify it.
+}
+
+fn main() {
+  let mut network: Network = Network::new(
+    Activation::sigmoid(),
+    vec!(2, 2, 2),
+  );
+
+  println!("\nWeights");
+  for layer in network.layers.iter() {
+    for (bias, weights) in layer.neurons.iter() {
+      println!("{:.2?} + {}", weights, bias);
+    }
+
+    println!("\n");
+  }
+
+  network.train(vec!(
+    (0, vec!(1_f64, 1_f64)),
+    (0, vec!(0_f64, 0_f64)),
+    (1, vec!(1_f64, 0_f64)),
+    (1, vec!(0_f64, 1_f64))
+  ));
+
+  println!("\nWeights");
+  for layer in network.layers.iter() {
+    for (bias, weights) in layer.neurons.iter() {
+      println!("{:.2?} + {}", weights, bias);
+    }
+
+    println!("\n");
+  }
 }
 
 #[cfg(test)]
@@ -60,9 +92,18 @@ mod tests {
   #[test]
   fn train_xor_gate() {
     let mut network: Network = Network::new(
-      Activation::leaky_relu(),
+      Activation::sigmoid(),
       vec!(2, 2, 2),
     );
+
+    println!("\nWeights");
+    for layer in network.layers.iter() {
+      for (bias, weights) in layer.neurons.iter() {
+        println!("{:.2?} + {}", weights, bias);
+      }
+
+      println!("\n");
+    }
 
     network.train(vec!(
       (0, vec!(1_f64, 1_f64)),

@@ -127,7 +127,11 @@ impl Layer {
       0_f64,
       // Sets bias and all weights to 0 for each neuron.
       (0..neurons.len())
-        .map(|weights| (0_f64, (0..weights).map(|_| 0_f64).collect()))
+        .map(|neuron_index| {
+          let (_, ref weights) = neurons[neuron_index];
+
+          (0_f64, (0..weights.len()).map(|_| 0_f64).collect())
+        })
         .collect()
     )
   }

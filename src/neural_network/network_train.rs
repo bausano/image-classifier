@@ -1,5 +1,4 @@
 use std::ops::Deref;
-use super::layer::Layer;
 use super::network::Network;
 
 impl Network {
@@ -18,12 +17,21 @@ impl Network {
       // Gets the activations for each layer.
       let activations: Vec<Vec<f64>> = self.calculate_activations(inputs);
 
-      let layers_count: usize = self.layers.len() - 1;
+      let layers_count: usize = self.layers.len();
+
+      // Partial weight change without the learning rate and previous activations.
+      let output_partial_deltas: Vec<f64> = self.calculate_deltas(
+        target,
+        &activations[layers_count]
+      );
+
+      let mut layers_iterator: Vec<usize> = (1..layers_count).collect();
+      layers_iterator.reverse();
 
       // Propagates the error deltas from one layer to another.
-      (layers_count..1).fold(
-        self.output_weights(layers_count, target, &activations),
-        |deltas, layer| self.hidden_weights(layer, deltas, &activations)
+      layers_iterator.iter().fold(
+        output_partial_deltas,
+        |deltas, layer| self.update_weights(layer.clone(), deltas, &activations)
       );
     }
 
@@ -65,18 +73,12 @@ impl Network {
   /// @param target The expected result for given inputs
   /// @param activations Activation values of each layer
   /// @return Vector of changes to each neurons bias and weights
-  fn output_weights (
+  fn update_weights (
     &mut self,
     layer_index: usize,
-    target: usize,
+    partial_deltas: Vec<f64>,
     activations: &Vec<Vec<f64>>,
   ) -> Vec<f64> {
-    // Partial weight change without the learning rate and previous activations.
-    let partial_deltas: Vec<f64> = self.calculate_deltas(
-      target,
-      &activations[layer_index]
-    );
-
     // Finishes deltas for each neuron in the output layer.
     let update: Vec<(f64, Vec<f64>)> = partial_deltas.iter().enumerate()
       .map(|(neuron, partial_delta)| {
@@ -98,20 +100,6 @@ impl Network {
     self.layers[layer_index].add_update(update);
 
     partial_deltas
-  }
-
-  fn hidden_weights (
-    &mut self,
-    layer_index: usize,
-    deltas: Vec<f64>,
-    activations: &Vec<Vec<f64>>,
-  ) -> Vec<f64> {
-
-    // for each neuron
-      // error_contribution = sum (weight[i] * deltas[i])
-      // partial_delta = error_contribution * der(activation)
-
-    return vec!(0_f64);
   }
 
   /// Calculates the the partial weight change for each output neuron. This
