@@ -121,9 +121,7 @@ impl Network {
 
           activation_derivative * partial_deltas.iter().enumerate()
             .fold(0_f64, |sum, (delta_index, delta)| {
-              // println!("{} neurons, {} delta, {} delta_index, {} neuron_undex", neurons.len(), delta, delta_index, neuron_index);
               let (_, ref weights) = neurons[delta_index];
-              // println!("{} weights", weights.len());
 
               sum + (delta * weights[neuron_index])
             })

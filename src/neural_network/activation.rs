@@ -34,7 +34,11 @@ impl Activation {
           return 1_f64
         }
 
-        0_f64
+        if x == 0_f64 {
+          return 0_f64
+        }
+
+        01_f64
       })
     }
   }

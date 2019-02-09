@@ -3,27 +3,25 @@ extern crate rand;
 pub mod reader;
 pub mod neural_network;
 
-use reader::digit::Digit;
 use std::time::{SystemTime};
 use neural_network::network::Network;
 use neural_network::activation::Activation;
 
 fn main() {
   // We read the digits from input file.
-  let digits: Vec<Digit> = reader::read_digits();
-
-  // Destruct the digits into the training data.
-  let training_data: Vec<(u8, Vec<f64>)> = digits.iter()
+  let training_data: Vec<(u8, Vec<f64>)> = reader::read_digits(
+    include_str!("../data/input.txt"),
+  ) .iter()
     .map(|digit| (digit.class, digit.grid.clone()))
     .collect();
 
   // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
     Activation::sigmoid(),
-    vec!(64, 16, 16, 10),
+    vec!(64, 26, 10),
   );
 
-  let iterations = 2000;
+  let iterations = 1000;
   let started_at = SystemTime::now();
 
   // Training the network.
@@ -38,14 +36,21 @@ fn main() {
     SystemTime::now().duration_since(started_at).unwrap(),
   );
 
-  let success: usize = training_data.iter()
+  // We read the digits from input file.
+  let testing_data: Vec<(u8, Vec<f64>)> = reader::read_digits(
+    include_str!("../data/cross_fold.txt"),
+  ) .iter()
+    .map(|digit| (digit.class, digit.grid.clone()))
+    .collect();
+
+  let success: usize = testing_data.iter()
     .fold(0, |success, (target, inputs)| {
       let succeded: bool = network.classify(inputs.clone()) == *target;
 
       if succeded { success + 1 } else { success }
     });
 
-  println!("Correct {} out of {}.", success, training_data.len());
+  println!("Correct {} out of {}.", success, testing_data.len());
 
   // TODO: Extract one input from the file and try to classify it.
 }
