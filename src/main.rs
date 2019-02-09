@@ -20,10 +20,10 @@ fn main() {
   // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
     Activation::sigmoid(),
-    vec!(64, 12, 12, 10),
+    vec!(64, 16, 16, 10),
   );
 
-  let iterations = 500;
+  let iterations = 2000;
   let started_at = SystemTime::now();
 
   // Training the network.
