@@ -30,7 +30,7 @@ impl Network {
     layers: Vec<Vec<(f64, Vec<f64>)>>,
   ) -> Self {
     Network {
-      learning_rate: 0.2_f64,
+      learning_rate: 0.05_f64,
       activation,
       layers: layers.into_iter()
         .map(|neurons| Layer::from(neurons))

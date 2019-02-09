@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use super::layer::Layer;
 use super::network::Network;
 
 impl Network {
@@ -19,10 +20,11 @@ impl Network {
 
       let layers_count: usize = self.layers.len();
 
-      // Partial weight change without the learning rate and previous activations.
+      // Partial weight change without the learning rate and previous
+      // activations.
       let output_partial_deltas: Vec<f64> = self.calculate_deltas(
         target,
-        &activations[layers_count]
+        &activations[layers_count],
       );
 
       let mut layers_iterator: Vec<usize> = (0..layers_count).collect();
@@ -31,7 +33,7 @@ impl Network {
       // Propagates the error deltas from one layer to another.
       layers_iterator.iter().fold(
         output_partial_deltas,
-        |deltas, layer| self.update_layer_weights(layer.clone(), deltas, &activations)
+        |deltas, layer| self.update_layer_weights(layer.clone(), deltas, &activations),
       );
     }
 
@@ -79,27 +81,73 @@ impl Network {
     partial_deltas: Vec<f64>,
     activations: &Vec<Vec<f64>>,
   ) -> Vec<f64> {
-    // Finishes deltas for each neuron in the output layer.
-    let update: Vec<(f64, Vec<f64>)> = partial_deltas.iter().enumerate()
-      .map(|(neuron, partial_delta)| {
-        // Get the neuron this delta is computed for and extract the bias.
-        let (bias, _) = self.layers[layer_index].neurons[neuron];
+    // Stores delta errors for neurons in this layer.
+    let mut new_partial_deltas: Vec<f64> = Vec::new();
+
+    // Calculates nudges for each weight and bias in this layer.
+    let nudges = self.calculate_nudges(
+      layer_index,
+      partial_deltas,
+      activations,
+      &mut new_partial_deltas,
+    );
+
+    // Caches the nudges.
+    self.layers[layer_index].add_update(nudges);
+
+    new_partial_deltas
+  }
+
+  fn calculate_nudges (
+    &mut self,
+    layer_index: usize,
+    partial_deltas: Vec<f64>,
+    activations: &Vec<Vec<f64>>,
+    new_partial_deltas: &mut Vec<f64>,
+  ) -> Vec<(f64, Vec<f64>)> {
+    let layer: &Layer = &self.layers[layer_index];
+    let derivative = self.activation.derivative.deref();
+
+    layer.neurons.iter().enumerate()
+      .map(|(neuron_index, _)| {
+        // Calculates the error for current neuron as a product of its weights
+        // and the error of neuron in the next layer that is that weight
+        // connected to.
+        let new_partial_delta = if layer_index == self.layers.len() - 1 {
+          partial_deltas[neuron_index]
+        } else {
+          let neurons = &self.layers[layer_index + 1].neurons;
+          let activation_derivative = derivative(activations[layer_index + 1][neuron_index]);
+
+          activation_derivative * partial_deltas.iter().enumerate()
+            .fold(0_f64, |sum, (delta_index, delta)| {
+              // println!("{} neurons, {} delta, {} delta_index, {} neuron_undex", neurons.len(), delta, delta_index, neuron_index);
+              let (_, ref weights) = neurons[delta_index];
+              // println!("{} weights", weights.len());
+
+              sum + (delta * weights[neuron_index])
+            })
+        };
+
+        // Pushes this partial delta to output vector that is going to be passed
+        // to next layer.
+        new_partial_deltas.push(new_partial_delta);
 
         // The partial delta onto the activations from the previous layer to
         // find the final delta to the weight.
+        // In the activations vector, activations indecies are equal to
+        // layer_index - 1, because the layers vector does not include first
+        // input layer. Therefore activations[layer_index] gives us activations
+        // from the next layer (in direction to the output).
         let weight_deltas = activations[layer_index].iter()
-          .map(|activation| activation * partial_delta * self.learning_rate)
+          .map(|activation| activation * new_partial_delta * self.learning_rate)
           .collect();
 
         // Export changes to the neuron in the same format as each neuron is
         // defined: (bias, weights).
-        (bias * partial_delta * self.learning_rate, weight_deltas)
+        (new_partial_delta * self.learning_rate, weight_deltas)
       })
-      .collect();
-
-    self.layers[layer_index].add_update(update);
-
-    partial_deltas
+      .collect()
   }
 
   /// Calculates the the partial weight change for each output neuron. This
@@ -116,9 +164,9 @@ impl Network {
       .map(|(neuron, output)| {
         // If this was the expected answer, compute error to 1, otherwise to 0.
         let total_to_output = if target == neuron {
-          1_f64 - output
+          -(1_f64 - output)
         } else {
-          0_f64 - output
+          -(0_f64 - output)
         };
 
         derivative(output.clone()) * total_to_output

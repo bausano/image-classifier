@@ -31,7 +31,7 @@ fn _main() {
 fn main() {
   let mut network: Network = Network::new(
     Activation::sigmoid(),
-    vec!(2, 2, 2),
+    vec!(2, 3, 2),
   );
 
   println!("\nWeights");
@@ -43,7 +43,7 @@ fn main() {
     println!("\n");
   }
 
-  for _ in 0..1000 {
+  for _ in 0..60000 {
     network.train(vec!(
       (0, vec!(1_f64, 1_f64)),
       (0, vec!(0_f64, 0_f64)),
@@ -60,6 +60,11 @@ fn main() {
 
     println!("\n");
   }
+
+  println!("0_f64, 1_f64 = {}", network.classify(vec!(0_f64, 1_f64)));
+  println!("1_f64, 0_f64 = {}", network.classify(vec!(1_f64, 0_f64)));
+  println!("0_f64, 0_f64 = {}", network.classify(vec!(0_f64, 0_f64)));
+  println!("1_f64, 1_f64 = {}", network.classify(vec!(1_f64, 1_f64)));
 }
 
 #[cfg(test)]

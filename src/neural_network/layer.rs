@@ -80,7 +80,7 @@ impl Layer {
       let (divider, ref mut neurons) = self.updates;
 
       // Adds weights to the neurons.
-      Layer::add_weights(&mut self.neurons, neurons, divider);
+      Layer::add_weights(&mut self.neurons, neurons, -divider);
     }
 
     self.updates = Layer::new_updates(&self.neurons);
