@@ -4,10 +4,11 @@ pub mod reader;
 pub mod neural_network;
 
 use reader::digit::Digit;
+use std::time::{SystemTime};
 use neural_network::network::Network;
 use neural_network::activation::Activation;
 
-fn _main() {
+fn main() {
   // We read the digits from input file.
   let digits: Vec<Digit> = reader::read_digits();
 
@@ -18,53 +19,35 @@ fn _main() {
 
   // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
-    Activation::leaky_relu(),
+    Activation::sigmoid(),
     vec!(64, 12, 12, 10),
   );
 
+  let iterations = 500;
+  let started_at = SystemTime::now();
+
   // Training the network.
-  network.train(training_data);
+  for _ in 0..iterations {
+    network.train(&training_data);
+  }
 
-  // TODO: Extract one input from the file and try to classify it.
-}
-
-fn main() {
-  let mut network: Network = Network::new(
-    Activation::sigmoid(),
-    vec!(2, 3, 2),
+  println!(
+    "Done {} iterations on {} samples in {:?}.",
+    iterations,
+    training_data.len(),
+    SystemTime::now().duration_since(started_at).unwrap(),
   );
 
-  println!("\nWeights");
-  for layer in network.layers.iter() {
-    for (bias, weights) in layer.neurons.iter() {
-      println!("{:.2?} + {}", weights, bias);
-    }
+  let success: usize = training_data.iter()
+    .fold(0, |success, (target, inputs)| {
+      let succeded: bool = network.classify(inputs.clone()) == *target;
 
-    println!("\n");
-  }
+      if succeded { success + 1 } else { success }
+    });
 
-  for _ in 0..60000 {
-    network.train(vec!(
-      (0, vec!(1_f64, 1_f64)),
-      (0, vec!(0_f64, 0_f64)),
-      (1, vec!(1_f64, 0_f64)),
-      (1, vec!(0_f64, 1_f64)),
-    ));
-  }
+  println!("Correct {} out of {}.", success, training_data.len());
 
-  println!("\nWeights");
-  for layer in network.layers.iter() {
-    for (bias, weights) in layer.neurons.iter() {
-      println!("{:.2?} + {}", weights, bias);
-    }
-
-    println!("\n");
-  }
-
-  println!("0_f64, 1_f64 = {}", network.classify(vec!(0_f64, 1_f64)));
-  println!("1_f64, 0_f64 = {}", network.classify(vec!(1_f64, 0_f64)));
-  println!("0_f64, 0_f64 = {}", network.classify(vec!(0_f64, 0_f64)));
-  println!("1_f64, 1_f64 = {}", network.classify(vec!(1_f64, 1_f64)));
+  // TODO: Extract one input from the file and try to classify it.
 }
 
 #[cfg(test)]
@@ -75,62 +58,26 @@ mod tests {
   use super::neural_network::activation::Activation;
 
   #[test]
-  fn xor_gate() {
-    let schema = vec!(
-      vec!(
-        (-0.1_f64, vec!(0.1_f64, 0.1_f64)), (0_f64, vec!(0.9_f64, 0.9_f64))
-      ),
-      vec!(
-        (-0.01_f64, vec!(-10_f64, 1_f64)), (0.01_f64, vec!(100_f64, -1_f64))
-      )
-    );
-
-    let network: Network = Network::from(
-      Activation::leaky_relu(),
-      schema,
-    );
-
-    assert!(network.classify(vec!(0_f64, 1_f64)) == 0);
-    assert!(network.classify(vec!(1_f64, 0_f64)) == 0);
-    assert!(network.classify(vec!(0_f64, 0_f64)) == 1);
-    assert!(network.classify(vec!(1_f64, 1_f64)) == 1);
-  }
-
-  #[test]
   fn train_xor_gate() {
-    let mut network: Network = Network::new(
-      Activation::sigmoid(),
-      vec!(2, 2, 2),
-    );
-
-    println!("\nWeights");
-    for layer in network.layers.iter() {
-      for (bias, weights) in layer.neurons.iter() {
-        println!("{:.2?} + {}", weights, bias);
-      }
-
-      println!("\n");
-    }
-
-    network.train(vec!(
+    let data = vec!(
       (0, vec!(1_f64, 1_f64)),
       (0, vec!(0_f64, 0_f64)),
       (1, vec!(1_f64, 0_f64)),
-      (1, vec!(0_f64, 1_f64))
-    ));
+      (1, vec!(0_f64, 1_f64)),
+    );
 
-    println!("\nWeights");
-    for layer in network.layers.iter() {
-      for (bias, weights) in layer.neurons.iter() {
-        println!("{:.2?} + {}", weights, bias);
-      }
+    let mut network: Network = Network::new(
+      Activation::sigmoid(),
+      vec!(2, 3, 2),
+    );
 
-      println!("\n");
+    for _ in 0..30000 {
+      network.train(&data);
     }
 
-    assert!(network.classify(vec!(0_f64, 1_f64)) == 0);
-    assert!(network.classify(vec!(1_f64, 0_f64)) == 0);
-    assert!(network.classify(vec!(0_f64, 0_f64)) == 1);
-    assert!(network.classify(vec!(1_f64, 1_f64)) == 1);
+    assert!(network.classify(vec!(0_f64, 1_f64)) == 1);
+    assert!(network.classify(vec!(1_f64, 0_f64)) == 1);
+    assert!(network.classify(vec!(0_f64, 0_f64)) == 0);
+    assert!(network.classify(vec!(1_f64, 1_f64)) == 0);
   }
 }

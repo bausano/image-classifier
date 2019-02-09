@@ -18,7 +18,6 @@ impl Network {
     // For each output neuron activation we compare the intensity.
     // This is basically a max function.
     for &probability in self.compute(inputs).iter() {
-      println!("{:.2} % sure the answer is {}.", probability * 100_f64, current_neuron);
       match intensity {
         None => intensity = Some(probability),
         Some(x) => if x < probability {

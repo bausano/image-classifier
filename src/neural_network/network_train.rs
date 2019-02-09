@@ -8,12 +8,12 @@ impl Network {
   ///
   /// @param network Network instance we want to train
   /// @param training_data Training data
-  pub fn train (&mut self, training_data: Vec<(u8, Vec<f64>)>) {
+  pub fn train (&mut self, training_data: &Vec<(u8, Vec<f64>)>) {
     for digit in training_data {
       let (target, inputs) = digit;
 
       // Converts target into usize so that it can be compared with enumerate.
-      let target = usize::from(target);
+      let target = usize::from(*target);
 
       // Gets the activations for each layer.
       let activations: Vec<Vec<f64>> = self.calculate_activations(inputs);
@@ -33,7 +33,7 @@ impl Network {
       // Propagates the error deltas from one layer to another.
       layers_iterator.iter().fold(
         output_partial_deltas,
-        |deltas, layer| self.update_layer_weights(layer.clone(), deltas, &activations),
+        |deltas, layer| self.update_layer_weights(*layer, deltas, &activations),
       );
     }
 
@@ -49,12 +49,12 @@ impl Network {
   ///
   /// @param inputs Vector of same length as input layer
   /// @return Activation intensity of each neuron in each layer
-  fn calculate_activations (&self, inputs: Vec<f64>) -> Vec<Vec<f64>> {
+  fn calculate_activations (&self, inputs: &Vec<f64>) -> Vec<Vec<f64>> {
     // We deference the pointer to the activation function.
     let activation_fn = self.activation.function.deref();
 
     // We return vector of vectors holding the activation values.
-    self.layers.iter().fold(vec!(inputs), |mut activations, layer| {
+    self.layers.iter().fold(vec!(inputs.clone()), |mut activations, layer| {
       // Computing an activation vector of a layer.
       let output = layer.activations(
         &activations.last().unwrap(),
@@ -169,7 +169,7 @@ impl Network {
           -(0_f64 - output)
         };
 
-        derivative(output.clone()) * total_to_output
+        derivative(*output) * total_to_output
       })
       .collect()
   }
