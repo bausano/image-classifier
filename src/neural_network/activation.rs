@@ -2,19 +2,20 @@ use std::f64::consts::E;
 
 pub struct Activation {
 
-  // Desired activation function to map onto all layer outputs.
+  /// Desired activation function to map onto all layer outputs.
   pub function: Box<Fn(f64) -> f64>,
 
-  // Derivative of the activation function.
+  /// Derivative of the activation function.
+  /// TODO: Change description, it is actually not a derivative.
   pub derivative: Box<Fn(f64) -> f64>,
 
 }
 
 impl Activation {
 
-  // Sigmoid natural activation function that ranges the x to (-1;1).
-  //
-  // @return New Activation instance
+  /// Sigmoid natural activation function that ranges the x to (-1;1).
+  ///
+  /// @return New Activation instance
   pub fn sigmoid () -> Self {
     Activation {
       function: Box::new(|x| 1_f64 / (1_f64 + E.powf(-x))),
@@ -22,9 +23,9 @@ impl Activation {
     }
   }
 
-  // Leaky reluactivation function that scales down negative values only.
-  //
-  // @return New Activation instance
+  /// Leaky reluactivation function that scales down negative values only.
+  ///
+  /// @return New Activation instance
   pub fn leaky_relu () -> Self {
     Activation {
       function: Box::new(|x| (0.01_f64 * x).max(x)),

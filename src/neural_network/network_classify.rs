@@ -3,10 +3,10 @@ use super::network::Network;
 
 impl Network {
 
-  // Classifies input (e.g. image) into one of the output layer categories.
-  //
-  // @param inputs Vector of same length as input layer
-  // @return Position of output neuron that fired the most
+  /// Classifies input (e.g. image) into one of the output layer categories.
+  ///
+  /// @param inputs Vector of same length as input layer
+  /// @return Position of output neuron that fired the most
   pub fn classify (&self, inputs: Vec<f64>) -> u8 {
     // Serves as an iterator.
     let mut current_neuron: u8 = 0;
@@ -34,10 +34,10 @@ impl Network {
     strongest_neuron.unwrap()
   }
 
-  // Computes the activation of the network over given inputs.
-  //
-  // @param inputs Vector of same length as input layer
-  // @return Activation intensity of each neuron in output layer
+  /// Computes the activation of the network over given inputs.
+  ///
+  /// @param inputs Vector of same length as input layer
+  /// @return Activation intensity of each neuron in output layer
   fn compute (&self, inputs: Vec<f64>) -> Vec<f64> {
     // We deference the pointer to the activation function.
     let activation_fn = self.activation.function.deref();

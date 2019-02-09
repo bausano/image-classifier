@@ -4,27 +4,27 @@ use super::activation::Activation;
 
 pub struct Network {
 
-  // Collection of layers in the network. First layer is input layer, therefore
-  // its weights do not matter. The last layer is an output layer. A classifier
-  // should have as many output neurons in last layer as there are categories.
-  // Minimal length of the vector is 2 (meaning there is no hidden layer).
+  /// Collection of layers in the network. First layer is input layer, therefore
+  /// its weights do not matter. The last layer is an output layer. A classifier
+  /// should have as many output neurons in last layer as there are categories.
+  /// Minimal length of the vector is 2 (meaning there is no hidden layer).
   pub layers: Vec<Layer>,
 
-  // Activation function and its derivative.
+  /// Activation function and its derivative.
   pub activation: Activation,
 
-  // Learning rate of the network.
+  /// Learning rate of the network.
   pub learning_rate: f64,
 
 }
 
 impl Network {
 
-  // Builds new network instance from given activation function and raw layer
-  // vectors in format Vector<(Layer): Vector<(Neuron) bias, weights>>
-  //
-  // @param activation Activation function and its derivative
-  // @param layers Raw layers vector
+  /// Builds new network instance from given activation function and raw layer
+  /// vectors in format Vector<(Layer): Vector<(Neuron) bias, weights>>
+  ///
+  /// @param activation Activation function and its derivative
+  /// @param layers Raw layers vector
   pub fn from (
     activation: Activation,
     layers: Vec<Vec<(f64, Vec<f64>)>>,
@@ -38,13 +38,13 @@ impl Network {
     }
   }
 
-  // Generates new network from given schema. Schema is a vector of integers
-  // where each integer represents one layer and the value of the integer number
-  // of neurons there should be.
-  //
-  // @param activation Pointer to the activation function and its derivative
-  // @param schema Vector representing layers and their neurons
-  // @return New Network instance
+  /// Generates new network from given schema. Schema is a vector of integers
+  /// where each integer represents one layer and the value of the integer number
+  /// of neurons there should be.
+  ///
+  /// @param activation Pointer to the activation function and its derivative
+  /// @param schema Vector representing layers and their neurons
+  /// @return New Network instance
   pub fn new (activation: Activation, schema: Vec<u8>) -> Self {
     // Random number generator.
     let mut rng = rand::thread_rng();
