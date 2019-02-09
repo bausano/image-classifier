@@ -98,6 +98,14 @@ impl Network {
     new_partial_deltas
   }
 
+  /// Calculates the nudges to bias and neurons. This is the core of the whole
+  /// algorithm. It also pushes the calculated new partial deltas to a
+  /// collector that sends it to the next layer.
+  ///
+  /// @param layer_index Current layer
+  /// @param partial_deltas Errors from the previous layer
+  /// @param activations All network activations from the feed forward process
+  /// @param new_partial_deltas Delta error collector
   fn calculate_nudges (
     &mut self,
     layer_index: usize,
@@ -110,15 +118,19 @@ impl Network {
 
     layer.neurons.iter().enumerate()
       .map(|(neuron_index, _)| {
-        // Calculates the error for current neuron as a product of its weights
-        // and the error of neuron in the next layer that is that weight
-        // connected to.
         let new_partial_delta = if layer_index == self.layers.len() - 1 {
+          // We already have calculated deltas for the output layer, so we skip
+          // the process of calculating them.
           partial_deltas[neuron_index]
         } else {
+          // We use neurons from the previous layer because that's where the
+          // weights that participate to the total error are.
           let neurons = &self.layers[layer_index + 1].neurons;
+          // Derivative of activation of current neuron.
           let activation_derivative = derivative(activations[layer_index + 1][neuron_index]);
 
+          // Multiply the derivative and sum of errors multiplied by relevant
+          // weight.
           activation_derivative * partial_deltas.iter().enumerate()
             .fold(0_f64, |sum, (delta_index, delta)| {
               let (_, ref weights) = neurons[delta_index];
