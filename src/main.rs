@@ -11,14 +11,15 @@ fn main() {
   // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
     Activation::sigmoid(),
-    vec!(64, 26, 10),
-    12_f64,
+    vec!(64, 16, 10),
+    7_f64,
   );
 
+  // How many times should the training data be processed.
   let iterations = 1000;
 
   // Trains the network on the training data.
-  let (duration, samples) = train_network(&mut network, 1000);
+  let (duration, samples) = train_network(&mut network, iterations);
 
   // We read the digits from input file.
   let (success, total) = validate_network(&network);
@@ -68,6 +69,7 @@ fn validate_network (network: &Network) -> (usize, usize) {
     .map(|digit| (digit.class, digit.grid.clone()))
     .collect();
 
+  // Calculate successful attemps over the cross fold data set.
   let success: usize = testing_data.iter()
     .fold(0, |success, (target, inputs)| {
       let succeded: bool = network.classify(inputs.clone()) == *target;
