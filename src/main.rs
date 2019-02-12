@@ -8,15 +8,20 @@ use std::time::{SystemTime, Duration};
 use neural_network::activation::Activation;
 
 fn main() {
+
   // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
     Activation::sigmoid(),
-    vec!(64, 64, 64, 10),
-    0.25_f64,
+    vec!(64, 128, 128, 10)
   );
 
+  network.batch_size = 10;
+  network.max_lr = 0.8_f64;
+  network.min_lr = 0.1_f64;
+  network.step_size = 8_f64;
+
   // How many times should the training data be processed.
-  let iterations = 40;
+  let iterations = 6 * (network.step_size.floor() as usize * 2) + network.step_size.floor() as usize + 1;
 
   // Trains the network on the training data.
   let (duration, samples) = train_network(&mut network, iterations);
@@ -48,8 +53,8 @@ fn train_network (network: &mut Network, iterations: usize) -> (Duration, usize)
   let started_at = SystemTime::now();
 
   // Training the network.
-  for _ in 0..iterations {
-    network.train(&training_data);
+  for epoch in 0..iterations {
+    network.train(&training_data, epoch);
   }
 
   (
@@ -83,8 +88,6 @@ fn validate_network (network: &Network) -> (usize, usize) {
 
 #[cfg(test)]
 mod tests {
-  // TODO: Cross validation.
-
   use super::neural_network::network::Network;
   use super::neural_network::activation::Activation;
 
@@ -100,11 +103,13 @@ mod tests {
     let mut network: Network = Network::new(
       Activation::sigmoid(),
       vec!(2, 3, 2),
-      3_f64,
     );
 
-    for _ in 0..10000 {
-      network.train(&data);
+    network.learning_rate = 3_f64;
+    network.batch_size = 3;
+
+    for epoch in 0..10000 {
+      network.train(&data, epoch);
     }
 
     assert!(network.classify(vec!(0_f64, 1_f64)) == 1);

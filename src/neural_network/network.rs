@@ -16,6 +16,16 @@ pub struct Network {
   /// Learning rate of the network.
   pub learning_rate: f64,
 
+  ///
+  pub batch_size: usize,
+
+  ///
+  pub step_size: f64,
+
+  pub min_lr: f64,
+
+  pub max_lr: f64,
+
 }
 
 impl Network {
@@ -25,15 +35,17 @@ impl Network {
   ///
   /// @param activation Activation function and its derivative
   /// @param layers Raw layers vector
-  /// @param learning_rate Inital step size
   pub fn from (
     activation: Activation,
     layers: Vec<Vec<(f64, Vec<f64>)>>,
-    learning_rate: f64,
   ) -> Self {
     Network {
-      learning_rate,
       activation,
+      batch_size: 1,
+      learning_rate: 1_f64,
+      min_lr: 1_f64,
+      max_lr: 1_f64,
+      step_size: 1_f64,
       layers: layers.into_iter()
         .map(|neurons| Layer::from(neurons))
         .collect()
@@ -46,12 +58,10 @@ impl Network {
   ///
   /// @param activation Pointer to the activation function and its derivative
   /// @param schema Vector representing layers and their neurons
-  /// @param learning_rate Inital step size
   /// @return New Network instance
   pub fn new (
     activation: Activation,
     schema: Vec<u8>,
-    learning_rate: f64,
   ) -> Self {
     // Random number generator.
     let mut rng = rand::thread_rng();
@@ -82,7 +92,7 @@ impl Network {
     }
 
     // Use the randomly generated skelet to build the network.
-    Network::from(activation, layers, learning_rate)
+    Network::from(activation, layers)
   }
 
 }

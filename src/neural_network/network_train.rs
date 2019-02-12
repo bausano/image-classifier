@@ -8,7 +8,9 @@ impl Network {
   ///
   /// @param network Network instance we want to train
   /// @param training_data Training data
-  pub fn train (&mut self, training_data: &Vec<(u8, Vec<f64>)>) {
+  pub fn train (&mut self, training_data: &Vec<(u8, Vec<f64>)>, epoch: usize) {
+    self.learning_rate = self.calculate_learning_rate(epoch as f64);
+
     for (i, digit) in training_data.iter().enumerate() {
       let (target, inputs) = digit;
 
@@ -36,7 +38,9 @@ impl Network {
         |deltas, layer| self.update_layer_weights(*layer, deltas, &activations),
       );
 
-      if i % 10 == 0 {
+      let batch = i % self.batch_size;
+
+      if batch % self.batch_size == 0 {
         for layer in self.layers.iter_mut() {
           layer.commit_updates();
         }
@@ -189,4 +193,15 @@ impl Network {
       })
       .collect()
   }
+
+  pub fn calculate_learning_rate (&mut self, epoch: f64) -> f64 {
+    let step = 1_f64 + epoch / (2_f64 * self.step_size as f64);
+    let cycle = step.floor();
+    let progress = (0.5_f64 - (step - cycle)).abs();
+
+    self.max_lr - (
+      2_f64 * (self.max_lr - self.min_lr) * (0.5_f64 - progress).abs()
+    )
+  }
+
 }
