@@ -9,9 +9,7 @@ impl Network {
   /// @param network Network instance we want to train
   /// @param training_data Training data
   pub fn train (&mut self, training_data: &Vec<(u8, Vec<f64>)>) {
-    let mut error_total: f64 = 0_f64;
-
-    for digit in training_data {
+    for (i, digit) in training_data.iter().enumerate() {
       let (target, inputs) = digit;
 
       // Converts target into usize so that it can be compared with enumerate.
@@ -29,9 +27,6 @@ impl Network {
         &activations[layers_count],
       );
 
-      // Total error of the network over the training data.
-      error_total += self.total_error(target, &activations[layers_count]);
-
       let mut layers_iterator: Vec<usize> = (0..layers_count).collect();
       layers_iterator.reverse();
 
@@ -40,9 +35,13 @@ impl Network {
         output_partial_deltas,
         |deltas, layer| self.update_layer_weights(*layer, deltas, &activations),
       );
-    }
 
-    println!("{}", error_total / training_data.len() as f64);
+      if i % 10 == 0 {
+        for layer in self.layers.iter_mut() {
+          layer.commit_updates();
+        }
+      }
+    }
 
     // Commits all updates into each layer.
     for layer in self.layers.iter_mut() {
@@ -189,20 +188,5 @@ impl Network {
         derivative(*output) * total_to_output
       })
       .collect()
-  }
-
-  fn total_error (&self, target: usize, outputs: &Vec<f64>) -> f64 {
-    outputs.iter()
-      .enumerate()
-      .fold(0_f64, |sum, (neuron, output)| {
-        // If this was the expected answer, compute error to 1, otherwise to 0.
-        let error = if target == neuron {
-          0.5_f64 * (1_f64 - output).powi(2)
-        } else {
-          0.5_f64 * (0_f64 - output).powi(2)
-        };
-
-        sum + error
-      })
   }
 }

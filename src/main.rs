@@ -11,12 +11,12 @@ fn main() {
   // Bootstrap new network with randomly chosen weights.
   let mut network = Network::new(
     Activation::sigmoid(),
-    vec!(64, 16, 10),
-    7_f64,
+    vec!(64, 64, 64, 10),
+    0.25_f64,
   );
 
   // How many times should the training data be processed.
-  let iterations = 1000;
+  let iterations = 40;
 
   // Trains the network on the training data.
   let (duration, samples) = train_network(&mut network, iterations);
@@ -44,6 +44,7 @@ fn train_network (network: &mut Network, iterations: usize) -> (Duration, usize)
   ) .iter()
     .map(|digit| (digit.class, digit.grid.clone()))
     .collect();
+
   let started_at = SystemTime::now();
 
   // Training the network.
